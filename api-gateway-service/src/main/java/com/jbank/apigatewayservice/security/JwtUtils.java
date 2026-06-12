@@ -1,5 +1,6 @@
 package com.jbank.apigatewayservice.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -16,22 +17,16 @@ public class JwtUtils {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    public void validate(String token) {
+        Jwts.parser().setSigningKey(jwtSecret).build().parse(token);
+    }
 
-    public boolean validate(String authToken) {
-        try {
-            Jwts.parser().setSigningKey(jwtSecret).build().parse(authToken);
-            return true;
-        } catch (SignatureException e) {
-            log.error("Invalid JWT signature" + e.getMessage());
-        } catch (MalformedJwtException e) {
-            log.error("Invalid JWT token" + e.getMessage());
-        } catch (ExpiredJwtException e) {
-            log.error("Expired JWT token" + e.getMessage());
-        } catch (UnsupportedJwtException e) {
-            log.error("Unsupported JWT token" + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.error("JWT claims string is empty" + e.getMessage());
-        }
-        return false;
+    public Long getUserId(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("userId", Long.class);
     }
 }

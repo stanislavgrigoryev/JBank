@@ -14,12 +14,15 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "accounts")
+@Table(name = "accounts", indexes = {
+        @Index(name = "idx_account_user_id", columnList = "userId"),
+        @Index(name = "idx_account_number", columnList = "accountNumber")
+})
 public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long accountId;
 
     @Column(nullable = false)
     private Long userId;
@@ -61,7 +64,7 @@ public class Account {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Account account = (Account) o;
-        return getId() != null && Objects.equals(getId(), account.getId());
+        return getAccountId() != null && Objects.equals(getAccountId(), account.getAccountId());
     }
 
     @Override

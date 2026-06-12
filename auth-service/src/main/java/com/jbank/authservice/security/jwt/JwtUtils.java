@@ -17,7 +17,13 @@ public class JwtUtils {
     private final SecurityJwtProperties jwtProperties;
 
     public String generateJwtToken(User user) {
-        return generateTokenFromUsername(user.getUsername());
+        return Jwts.builder()
+                .subject(user.getUsername())
+                .claim("userId", user.getId())
+                .issuedAt(new Date())
+                .expiration(new Date(new Date().getTime() + jwtProperties.getTokenExpiration().toMillis()))
+                .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecretKey())
+                .compact();
     }
 
     public String generateTokenFromUsername(String username) {
@@ -32,6 +38,13 @@ public class JwtUtils {
                 .setSigningKey(jwtProperties.getSecretKey())
                 .build()
                 .parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public Long getUserId(String token) {
+        return Jwts.parser()
+                .setSigningKey(jwtProperties.getSecretKey())
+                .build()
+                .parseClaimsJws(token).getBody().get("userId", Long.class);
     }
 
     public boolean  validate(String authToken) {
