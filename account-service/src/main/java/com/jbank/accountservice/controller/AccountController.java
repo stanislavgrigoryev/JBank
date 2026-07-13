@@ -18,7 +18,7 @@ public class AccountController {
 
     private final AccountService accountService;
 
-    @PostMapping
+    @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountDto createAccount(@RequestHeader("X-User-Id") Long userId,
                                     @Valid @RequestBody CreateAccountRequest request) {

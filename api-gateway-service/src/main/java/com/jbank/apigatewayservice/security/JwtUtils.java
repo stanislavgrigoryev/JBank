@@ -14,11 +14,18 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class JwtUtils {
 
-    @Value("${jwt.secret}")
+    @Value(value = "${jwt.secret}")
     private String jwtSecret;
 
     public void validate(String token) {
         Jwts.parser().setSigningKey(jwtSecret).build().parse(token);
+    }
+
+    public String getUsername(String token) {
+        return Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .build()
+                .parseClaimsJws(token).getBody().getSubject();
     }
 
     public Long getUserId(String token) {

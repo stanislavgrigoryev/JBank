@@ -3,34 +3,36 @@ spring:
     name: api-gateway-service
   cloud:
     gateway:
-      routes:
-        - id: auth-service
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/v1/auth/**, /api/v1/user/**
-          filters:
-            - AuthenticationFilter
+      server:
+        webflux:
+          routes:
+            - id: auth-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/v1/auth/**, /api/v1/user/**
+              filters:
+                - AuthenticationFilter
 
-        - id: account-service
-          uri: http://localhost:8080
-          predicates:
-            - Path=/api/v1/account/**
-          filters:
-            - AuthenticationFilter
+            - id: account-service
+              uri: http://localhost:8080
+              predicates:
+                - Path=/api/v1/account/**
+              filters:
+                - AuthenticationFilter
 
-        - id: auth-service-docs
-          uri: http://localhost:8081
-          predicates:
-            - Path=/auth-docs/**
-          filters:
-            - RewritePath=/auth-docs/(?<segment>.*), /${segment}
+            - id: auth-service-docs
+              uri: http://localhost:8081
+              predicates:
+                - Path=/auth-docs/**
+              filters:
+                - RewritePath=/auth-docs/(?<segment>.*), /$\{segment}
 
-        - id: account-service-docs
-          uri: http://localhost:8080
-          predicates:
-            - Path=/account-docs/**
-          filters:
-            - RewritePath=/account-docs/(?<segment>.*), /${segment}
+            - id: account-service-docs
+              uri: http://localhost:8080
+              predicates:
+                - Path=/account-docs/**
+              filters:
+                - RewritePath=/account-docs/(?<segment>.*), /$\{segment}
 
 eureka:
   client:
@@ -40,21 +42,22 @@ eureka:
     prefer-ip-address: true
 
 jwt:
-  secret: ${SECURITY.JWT.SECRET_KEY}
+  secret: 3Xq8jK9mN2pL5rV7bY1cF4dG6hJ8kL0zXcVbNmQwErTyUiOpAsDfGhJkLzXcVbNmQwErTyUiOpAsDfGhJkLzA==A
 
 server:
   port: 8083
 
 springdoc:
   swagger-ui:
+    path: /swagger-ui.html
     urls:
-      - name: auth-service
+      - name: Auth Service
         url: /auth-docs/v3/api-docs
-      - name: account-service
+      - name: Account Service
         url: /account-docs/v3/api-docs
-      - name: gateway
-        url: /v3/api-docs
+    urls-primary-name: Auth Service
 
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: DEBUG
