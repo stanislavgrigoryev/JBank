@@ -41,8 +41,9 @@ eureka:
   instance:
     prefer-ip-address: true
 
-jwt:
-  secret: 3Xq8jK9mN2pL5rV7bY1cF4dG6hJ8kL0zXcVbNmQwErTyUiOpAsDfGhJkLzXcVbNmQwErTyUiOpAsDfGhJkLzA==A
+security:
+  jwt:
+    secret-key: ${SECURITY.JWT.SECRET_KEY}
 
 server:
   port: 8083
