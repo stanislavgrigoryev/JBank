@@ -30,9 +30,6 @@ public class Card {
     @Column(nullable = false)
     private LocalDate expiryDate;
 
-    @Column(nullable = false, unique = true)
-    private String CVV2;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private CardType cardType;
