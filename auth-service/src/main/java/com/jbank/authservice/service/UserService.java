@@ -4,6 +4,7 @@ import com.jbank.authservice.controller.request.RegisterUserRequest;
 import com.jbank.authservice.controller.response.RefreshTokenResponse;
 import com.jbank.authservice.entity.Passport;
 import com.jbank.authservice.entity.RefreshToken;
+import com.jbank.authservice.entity.RoleType;
 import com.jbank.authservice.entity.User;
 import com.jbank.authservice.exception.AlreadyExistsException;
 import com.jbank.authservice.exception.RefreshTokenException;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static com.jbank.authservice.service.EmailService.generateVerificationCode;
 
@@ -70,7 +72,7 @@ public class UserService {
                 .phoneNumber(registerUserRequest.phoneNumber())
                 .dateOfBirth(registerUserRequest.dateOfBirth())
                 .password(passwordEncoder.encode(registerUserRequest.password()))
-                .roles(registerUserRequest.roles())
+                .roles(Set.of(RoleType.CLIENT))
                 .verificationCode(generateVerificationCode())
                 .verificationCodeExpiresAt(LocalDateTime.now().plusMinutes(60))
                 .emailVerification(false)
