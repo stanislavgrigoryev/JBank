@@ -13,8 +13,8 @@ import java.util.Objects;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "credit-contacts")
-public class CreditContact {
+@Table(name = "credit_contracts")
+public class CreditContract {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,8 +47,8 @@ public class CreditContact {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        CreditContact creditContact = (CreditContact) o;
-        return getId() != null && Objects.equals(getId(), creditContact.getId());
+        CreditContract creditContract = (CreditContract) o;
+        return getId() != null && Objects.equals(getId(), creditContract.getId());
     }
 
     @Override
