@@ -22,7 +22,7 @@ public class PaymentTemplate {
 
     private LocalDate nextDebitDate;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String cardAccount;
 
     //Опишите сущность «Шаблон платежа». Атрибуты:
