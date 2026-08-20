@@ -86,7 +86,7 @@ public class UserController {
             security = @SecurityRequirement(name = "bearer"))
     @PatchMapping(path = "/change-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@Valid PasswordChangeDto passwordChange, Principal principal) {
+    public void changePassword(@RequestBody @Valid PasswordChangeDto passwordChange, Principal principal) {
         userService.changePassword(userService.get(principal).getId(), passwordChange.password());
     }
 }
