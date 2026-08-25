@@ -2,7 +2,7 @@ spring:
   application:
     name: card-service
 server:
-  port: 8086
+  port: 8083
 
 eureka:
   client:

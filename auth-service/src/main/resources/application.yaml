@@ -15,7 +15,7 @@ spring:
 
   data:
     redis:
-      host: localhost
+      host: jbank-redis
       port: 6379
 
   mail:

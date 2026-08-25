@@ -1,0 +1,214 @@
+services:
+
+  discovery-service:
+    build:
+      context: ./discovery-service
+    ports:
+      - "8761:8761"
+    container_name: discovery-service
+    hostname: discovery-service
+    restart: unless-stopped
+    networks:
+      jbank-network:
+
+  auth_db:
+    image: postgres:12.3-alpine
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth -d auth_db"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 20s
+    networks:
+      jbank-network:
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+
+  account_db:
+    image: postgres:12.3-alpine
+    environment:
+      POSTGRES_DB: account_db
+      POSTGRES_USER: account
+      POSTGRES_PASSWORD: account
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U account -d account_db"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 20s
+    networks:
+      jbank-network:
+    volumes:
+      - account_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.0.12-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 10s
+    restart: unless-stopped
+    container_name: jbank-redis
+    hostname: jbank-redis
+    networks:
+      jbank-network:
+    volumes:
+      - ./redis-data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
+
+  auth-service:
+    build:
+      context: ./auth-service
+    env_file:
+      - ./auth-service/.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://auth_db:5432/auth_db
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 30s
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      auth_db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    container_name: auth-service
+    hostname: auth-service
+    networks:
+      jbank-network:
+
+  account-service:
+    build:
+      context: ./account-service
+    env_file:
+       - ./account-service/.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://account_db:5432/account_db
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 30s
+    ports:
+      - "8082:8080"
+    restart: unless-stopped
+    container_name: account-service
+    hostname: account-service
+    depends_on:
+      account_db:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    networks:
+      jbank-network:
+
+  card-service:
+    build:
+      context: ./card-service
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8083/actuator/health" ]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 30s
+    ports:
+      - "8083:8080"
+    container_name: card-service
+    hostname: card-service
+    restart: unless-stopped
+    depends_on:
+      - discovery-service
+    networks:
+      jbank-network:
+
+  credit-service:
+    build:
+      context: ./credit-service
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8084/actuator/health" ]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 30s
+    ports:
+      - "8084:8080"
+    container_name: credit-service
+    hostname: credit-service
+    restart: unless-stopped
+    depends_on:
+      - discovery-service
+    networks:
+      jbank-network:
+
+  admin-service:
+    build:
+      context: ./admin-service
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8085/actuator/health" ]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 30s
+    ports:
+      - "8085:8080"
+    container_name: admin-service
+    hostname: admin-service
+    restart: unless-stopped
+    depends_on:
+      - discovery-service
+    networks:
+      jbank-network:
+
+  api-gateway-service:
+    build:
+      context: ./api-gateway-service
+    ports:
+      - "8086:8080"
+    container_name: api-gateway-service
+    hostname: api-gateway-service
+    restart: unless-stopped
+    depends_on:
+       discovery-service:
+         condition: service_healthy
+       auth-service:
+         condition: service_healthy
+       card-service:
+         condition: service_healthy
+       credit-service:
+         condition: service_healthy
+       account-service:
+         condition: service_healthy
+       admin-service:
+         condition: service_healthy
+    networks:
+      jbank-network:
+
+networks:
+  jbank-network:
+
+volumes:
+  auth_data:
+  account_data:

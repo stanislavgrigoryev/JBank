@@ -14,7 +14,7 @@ spring:
                 - AuthenticationFilter
 
             - id: account-service
-              uri: http://localhost:8080
+              uri: http://localhost:8082
               predicates:
                 - Path=/api/v1/account/**
               filters:
@@ -28,7 +28,7 @@ spring:
                 - RewritePath=/auth-docs/(?<segment>.*), /$\{segment}
 
             - id: account-service-docs
-              uri: http://localhost:8080
+              uri: http://localhost:8082
               predicates:
                 - Path=/account-docs/**
               filters:
@@ -46,7 +46,7 @@ security:
     secret-key: ${SECURITY.JWT.SECRET_KEY}
 
 server:
-  port: 8083
+  port: 8086
 
 springdoc:
   swagger-ui:
