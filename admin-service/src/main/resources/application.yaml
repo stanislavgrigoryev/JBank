@@ -20,4 +20,4 @@ eureka:
     prefer-ip-address: true
 
 server:
-  port: 8085
+  port: ${SERVER_PORT:8085}

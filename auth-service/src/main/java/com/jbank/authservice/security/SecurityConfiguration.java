@@ -59,6 +59,7 @@ public class SecurityConfiguration {
                 }))
                 .authorizeHttpRequests((auth) ->
                         auth.requestMatchers(SWAGGER_URLs).permitAll()
+                                .requestMatchers("/actuator/**").permitAll()
                                 .requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/api/v1/user/register").permitAll()
                                 .anyRequest().authenticated())

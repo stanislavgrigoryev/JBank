@@ -13,7 +13,7 @@ spring:
     show-sql: false
 
 server:
-  port: 8083
+  port: ${SERVER_PORT:8083}
 eureka:
   client:
     service-url:

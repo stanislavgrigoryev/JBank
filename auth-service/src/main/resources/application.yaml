@@ -38,7 +38,7 @@ security:
     refresh-token-expiration: ${SECURITY.JWT.REFRESH_TOKEN_EXPIRATION}
 
 server:
-  port: 8081
+  port: ${SERVER_PORT:8081}
 
 springdoc:
   api-docs:

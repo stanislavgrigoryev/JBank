@@ -140,6 +140,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://auth_db:5432/auth_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SERVER_PORT: 8080
     depends_on:
       discovery-service:
         condition: service_healthy
@@ -169,6 +170,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://account_db:5432/account_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SERVER_PORT: 8080
     ports:
       - "8082:8080"
     restart: unless-stopped
@@ -196,6 +198,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://card_db:5432/card_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SERVER_PORT: 8080
     ports:
       - "8083:8080"
     container_name: card-service
@@ -223,6 +226,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://credit_db:5432/credit_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SERVER_PORT: 8080
     ports:
       - "8084:8080"
     container_name: credit-service
@@ -250,6 +254,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://admin_db:5432/admin_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SERVER_PORT: 8080
     ports:
       - "8085:8080"
     container_name: admin-service
@@ -281,6 +286,7 @@ services:
       - ./api-gateway-service/.env
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SERVER_PORT: 8080
     depends_on:
       discovery-service:
         condition: service_healthy

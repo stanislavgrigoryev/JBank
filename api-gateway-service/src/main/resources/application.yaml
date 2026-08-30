@@ -67,7 +67,7 @@ security:
     secret-key: ${SECURITY.JWT.SECRET_KEY}
 
 server:
-  port: 8086
+  port: ${SERVER_PORT:8086}
 
 springdoc:
   swagger-ui:
