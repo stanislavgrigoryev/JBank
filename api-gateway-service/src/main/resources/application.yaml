@@ -42,14 +42,14 @@ spring:
                 - AuthenticationFilter
 
             - id: auth-service-docs
-              uri: lb://auth-service-docs:8081
+              uri: lb://auth-service:8081
               predicates:
                 - Path=/auth-docs/**
               filters:
                 - RewritePath=/auth-docs/(?<segment>.*), /$\{segment}
 
             - id: account-service-docs
-              uri: lb://account-service-docs:8082
+              uri: lb://account-service:8082
               predicates:
                 - Path=/account-docs/**
               filters:
