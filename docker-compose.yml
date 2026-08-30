@@ -277,6 +277,8 @@ services:
     container_name: api-gateway-service
     hostname: api-gateway-service
     restart: unless-stopped
+    env_file:
+      - ./api-gateway-service/.env
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
     depends_on:
