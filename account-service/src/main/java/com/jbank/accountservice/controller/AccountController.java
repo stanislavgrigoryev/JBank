@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/account")
+@RequestMapping("/api/v1/account")
 public class AccountController {
 
     private final AccountService accountService;
