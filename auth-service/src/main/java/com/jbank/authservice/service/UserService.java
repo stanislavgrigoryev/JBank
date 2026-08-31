@@ -53,7 +53,6 @@ public class UserService {
     }
 
     public User save(RegisterUserRequest registerUserRequest) {
-        log.info("Save user with email {}:", registerUserRequest.email());
 
         if (userRepository.existsByEmailIgnoreCase(registerUserRequest.email())) {
             throw new AlreadyExistsException("Email already exists");
@@ -103,7 +102,7 @@ public class UserService {
         try {
             emailService.sendVerificationEmail(user.getEmail(), subject, htmlMessage);
         } catch (MessagingException e) {
-            log.info("Couldn't send email");
+            log.error("Couldn't send verification email to {}: {}", user.getEmail(), e.getMessage(), e);
         }
     }
 
