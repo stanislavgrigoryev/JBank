@@ -6,8 +6,7 @@ import com.jbank.authservice.entity.Passport;
 import com.jbank.authservice.entity.RefreshToken;
 import com.jbank.authservice.entity.RoleType;
 import com.jbank.authservice.entity.User;
-import com.jbank.authservice.exception.AlreadyExistsException;
-import com.jbank.authservice.exception.RefreshTokenException;
+import com.jbank.authservice.exception.*;
 import com.jbank.authservice.repository.UserRepository;
 import com.jbank.authservice.security.jwt.JwtUtils;
 import jakarta.mail.MessagingException;
@@ -54,6 +53,7 @@ public class UserService {
     }
 
     public User save(RegisterUserRequest registerUserRequest) {
+        log.info("Save user with email {}:", registerUserRequest.email());
 
         if (userRepository.existsByEmailIgnoreCase(registerUserRequest.email())) {
             throw new AlreadyExistsException("Email already exists");
@@ -103,13 +103,15 @@ public class UserService {
         try {
             emailService.sendVerificationEmail(user.getEmail(), subject, htmlMessage);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            log.info("Couldn't send email");
         }
     }
 
     public void resendVerificationCode(User user) {
+        log.info("Resend verification code for user with id {}:", user.getId());
+
         if (user.isEnabled()) {
-            throw new RuntimeException("User is enabled");
+            throw new UserAlreadyVerifiedException("User is enabled");
         }
         user.setVerificationCode(generateVerificationCode());
         user.setVerificationCodeExpiresAt(LocalDateTime.now().plusMinutes(15));
@@ -118,8 +120,10 @@ public class UserService {
     }
 
     public void emailVerification(String verificationCode, User user) {
+        log.info("Email verification for user with id {}:", user.getId());
+
         if (user.getVerificationCodeExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Verification code expired");
+            throw new VerificationCodeExpiredException("Verification code expired");
         }
 
         if (user.getVerificationCode().equals(verificationCode)) {
@@ -128,12 +132,13 @@ public class UserService {
             user.setVerificationCodeExpiresAt(null);
             userRepository.save(user);
         } else {
-            throw new RuntimeException("Invalid verification code");
+            throw new InvalidVerificationCodeException("Invalid verification code");
         }
     }
 
     @Transactional
     public RefreshTokenResponse refreshToken(String refreshTokenRequest) {
+        log.info("Refresh token");
         return refreshTokenService.findByRefreshToken(refreshTokenRequest)
                 .map(refreshTokenService::checkRefreshToken)
                 .map(RefreshToken::getUserId)
