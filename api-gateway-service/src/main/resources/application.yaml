@@ -9,7 +9,8 @@ spring:
             - id: auth-service
               uri: lb://auth-service:8081
               predicates:
-                - Path=/api/v1/auth/**, /api/v1/user/**
+                - Path=/api/v1/auth/**
+                - Path=/api/v1/user/**
               filters:
                 - AuthenticationFilter
 
@@ -23,21 +24,21 @@ spring:
             - id: admin-service
               uri: lb://admin-service:8085
               predicates:
-                - Path=/api/v1/admin
+                - Path=/api/v1/admin/**
               filters:
                 - AuthenticationFilter
 
             - id: card-service
               uri: lb://card-service:8083
               predicates:
-                  - Path=/api/v1/cards
+                  - Path=/api/v1/cards/**
               filters:
                 - AuthenticationFilter
 
             - id: credit-service
               uri: lb://credit-service:8084
               predicates:
-                - Path=/api/v1/credit
+                - Path=/api/v1/credit/**
               filters:
                 - AuthenticationFilter
 
