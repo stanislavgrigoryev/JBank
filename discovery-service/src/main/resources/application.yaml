@@ -12,3 +12,4 @@ eureka:
     registry-fetch-interval-seconds: 30
     service-url:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+#TODO в конце проекта сделать TLS защиту
