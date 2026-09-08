@@ -13,6 +13,19 @@ spring:
       ddl-auto: create
     show-sql: true
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  endpoint:
+    health:
+      access: read_only
+    metrics:
+      access: read_only
+    prometheus:
+      access: read_only
+
 springdoc:
   api-docs:
     path: /v3/api-docs

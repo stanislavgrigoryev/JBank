@@ -274,6 +274,56 @@ services:
     networks:
       jbank-network:
 
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.93.5
+    ports:
+      - "8428:8428"
+    container_name: victoria-metrics
+    hostname: victoria-metrics
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://victoria-metrics:8428/health | grep -q OK || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      card-service:
+        condition: service_healthy
+      credit-service:
+        condition: service_healthy
+      account-service:
+        condition: service_healthy
+      admin-service:
+        condition: service_healthy
+    volumes:
+      - victoriametrics_data:/victoria-metrics-data
+      - ./victoria-metrics-scrape.yml:/etc/victoria-metrics/scrape.yml:ro
+    restart: unless-stopped
+    networks:
+      jbank-network:
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    ports:
+      - "3000:3000"
+    container_name: grafana
+    hostname: grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    depends_on:
+      victoriametrics:
+        condition: service_healthy
+    networks:
+      jbank-network:
+
   api-gateway-service:
     build:
       context: ./api-gateway-service
@@ -313,3 +363,5 @@ volumes:
   card_data:
   credit_data:
   admin_data:
+  victoriametrics_data:
+  grafana_data:

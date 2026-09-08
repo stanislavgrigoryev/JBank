@@ -15,8 +15,12 @@ spring:
 
   data:
     redis:
-      host: jbank-redis
+      host: localhost
       port: 6379
+  #      host: ${SPRING_REDIS_HOST:localhost}
+#      port: ${SPRING_REDIS_PORT:6379}
+#      password: ${SPRING_REDIS_PASSWORD:}
+#      username: ${SPRING_REDIS_USERNAME:}
 
   mail:
     host: smtp.gmail.com
@@ -30,6 +34,19 @@ spring:
           auth: true
           starttls:
             enable: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  endpoint:
+    health:
+      access: read_only
+    metrics:
+      access: read_only
+    prometheus:
+      access: read_only
 
 security:
   jwt:

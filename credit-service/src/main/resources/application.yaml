@@ -22,3 +22,16 @@ eureka:
 
 server:
   port: ${SERVER_PORT:8084}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  endpoint:
+    health:
+      access: read_only
+    metrics:
+      access: read_only
+    prometheus:
+      access: read_only
