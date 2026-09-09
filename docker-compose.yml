@@ -301,8 +301,29 @@ services:
         condition: service_healthy
     volumes:
       - victoriametrics_data:/victoria-metrics-data
-      - ./victoria-metrics-scrape.yml:/etc/victoria-metrics/scrape.yml:ro
+    command:
+      - "--retentionPeriod=30d"
+      - "--httpListenAddr=:8428"
     restart: unless-stopped
+    networks:
+      jbank-network:
+
+  vmagent:
+    image: victoriametrics/vmagent:latest
+    container_name: vmagent
+    volumes:
+      - ./vmagent-config.yml:/etc/vmagent/config.yml
+    command:
+      - '-promscrape.config=/etc/vmagent/config.yml'
+      - "--promscrape.eurekaSDCheckInterval=30s"
+      - '-remoteWrite.url=http://victoriametrics:8428/api/v1/write'
+    ports:
+      - "8429:8429"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      victoriametrics:
+        condition: service_healthy
     networks:
       jbank-network:
 
@@ -317,6 +338,7 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: admin
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
     restart: unless-stopped
     depends_on:
       victoriametrics:

@@ -1,0 +1,39 @@
+scrape_configs:
+
+  - job_name: 'jbank-microservices'
+    scrape_interval: 15s
+    metrics_path: /actuator/prometheus
+
+    eureka_sd_configs:
+      - server: 'http://discovery-service:8761/eureka'
+
+    relabel_configs:
+      # Оставляем только инстансы со статусом UP
+      - source_labels: [__meta_eureka_app_instance_status]
+        regex: UP
+        action: keep
+
+      # Имя приложения из Eureka -> label application
+      - source_labels: [__meta_eureka_app_name]
+        target_label: application
+        action: lowercase
+
+      # Адрес для скрейпа: IP инстанса + стандартный порт из Eureka
+      # (используем, когда management-порт совпадает с server.port)
+      - source_labels:
+          - __meta_eureka_app_instance_ip_addr
+          - __meta_eureka_app_instance_port
+        separator: ':'
+        target_label: __address__
+
+      # Сохраняем instance_id как отдельный label (полезно при нескольких репликах)
+      - source_labels: [__meta_eureka_app_instance_id]
+        target_label: instance_id
+
+  - job_name: 'discovery-service'
+    scrape_interval: 15s
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['discovery-service:8761']
+        labels:
+          application: 'discovery-service'
