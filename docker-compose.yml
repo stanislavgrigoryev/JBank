@@ -275,7 +275,7 @@ services:
       jbank-network:
 
   victoriametrics:
-    image: victoriametrics/victoria-metrics:v1.93.5
+    image: victoriametrics/victoria-metrics:v1.151.0.5
     ports:
       - "8428:8428"
     container_name: victoria-metrics
@@ -309,7 +309,7 @@ services:
       jbank-network:
 
   vmagent:
-    image: victoriametrics/vmagent:latest
+    image: victoriametrics/vmagent:v1.151.0
     container_name: vmagent
     volumes:
       - ./vmagent-config.yml:/etc/vmagent/config.yml
@@ -328,7 +328,7 @@ services:
       jbank-network:
 
   grafana:
-    image: grafana/grafana:10.0.3
+    image: grafana/grafana:11.1.0
     ports:
       - "3000:3000"
     container_name: grafana
