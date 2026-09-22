@@ -42,6 +42,20 @@ spring:
               filters:
                 - AuthenticationFilter
 
+            - id: notification-service
+              uri: lb://notification-service:8086
+              predicates:
+                - Path=/api/v1/notification/**
+              filters:
+                - AuthenticationFilter
+
+            - id: transaction-service
+              uri: lb://transaction-service:8087
+              predicates:
+                - Path=/api/v1/transaction/**
+              filters:
+                - AuthenticationFilter
+
             - id: auth-service-docs
               uri: lb://auth-service:8081
               predicates:
@@ -55,6 +69,41 @@ spring:
                 - Path=/account-docs/**
               filters:
                 - RewritePath=/account-docs/(?<segment>.*), /$\{segment}
+
+            - id: admin-service-docs
+              uri: lb://admin-service:8085
+              predicates:
+                - Path=/admin-docs/**
+              filters:
+                - RewritePath=/admin-docs/(?<segment>.*), /$\{segment}
+
+            - id: card-service-docs
+              uri: lb://card-service:8083
+              predicates:
+                - Path=/card-docs/**
+              filters:
+                - RewritePath=/card-docs/(?<segment>.*), /$\{segment}
+
+            - id: credit-service-docs
+              uri: lb://credit-service:8084
+              predicates:
+                - Path=/credit-docs/**
+              filters:
+                - RewritePath=/credit-docs/(?<segment>.*), /$\{segment}
+
+            - id: transaction-service-docs
+              uri: lb://transaction-service:8087
+              predicates:
+                - Path=/transaction-docs/**
+              filters:
+                - RewritePath=/transaction-docs/(?<segment>.*), /$\{segment}
+
+            - id: notification-service-docs
+              uri: lb://notification-service:8086
+              predicates:
+                - Path=/notification-docs/**
+              filters:
+                - RewritePath=/notification-docs/(?<segment>.*), /$\{segment}
 
 eureka:
   client:
@@ -91,6 +140,16 @@ springdoc:
         url: /auth-docs/v3/api-docs
       - name: Account Service
         url: /account-docs/v3/api-docs
+      - name: Admin Service
+        url: /admin-docs/v3/api-docs
+      - name: Credit Service
+        url: /credit-docs/v3/api-docs
+      - name: Card Service
+        url: /card-docs/v3/api-docs
+      - name: Notification Service
+        url: /notification-docs/v3/api-docs
+      - name: Transaction Service
+        url: /transaction-docs/v3/api-docs
     urls-primary-name: Auth Service
 
 logging:

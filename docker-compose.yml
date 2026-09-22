@@ -114,6 +114,46 @@ services:
     volumes:
       - admin_data:/var/lib/postgresql/data
 
+  transaction_db:
+    image: postgres:15.3-alpine
+    environment:
+      POSTGRES_DB: transaction_db
+      POSTGRES_USER: transaction
+      POSTGRES_PASSWORD: transaction
+    ports:
+      - "5438:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d admin_db" ]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      jbank-network:
+    volumes:
+      - transaction_data:/var/lib/postgresql/data
+
+  notification_db:
+    image: postgres:15.3-alpine
+    environment:
+      POSTGRES_DB: notification_db
+      POSTGRES_USER: notification
+      POSTGRES_PASSWORD: notification
+    ports:
+      - "5438:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d admin_db" ]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      jbank-network:
+    volumes:
+      - notification:/var/lib/postgresql/data
+
   redis:
     image: redis:7.0.12-alpine
     ports:
@@ -181,6 +221,8 @@ services:
         condition: service_healthy
       discovery-service:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "java -version 2>/dev/null && wget -q --spider http://account-service:8080/actuator/health || exit 1" ]
       interval: 2s
@@ -215,6 +257,8 @@ services:
         condition: service_healthy
       card_db:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
     networks:
       jbank-network:
 
@@ -242,6 +286,8 @@ services:
       discovery-service:
         condition: service_healthy
       credit_db:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     networks:
       jbank-network:
@@ -274,6 +320,66 @@ services:
     networks:
       jbank-network:
 
+  notification-service:
+    build:
+      context: ./notification-service
+    env_file:
+      - ./notification-service/.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://notification_db:5432/admin_db
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SERVER_PORT: 8080
+    ports:
+      - "8086:8080"
+    container_name: notification-service
+    hostname: notification-service
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "java -version 2>/dev/null && wget -q --spider http://notification-service:8080/actuator/health || exit 1" ]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 30s
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      notification_db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      jbank-network:
+
+  transaction-service:
+    build:
+      context: ./transaction-service
+    env_file:
+      - ./transaction-service/.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://transaction_db:5432/admin_db
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SERVER_PORT: 8080
+    ports:
+      - "8087:8080"
+    container_name: transaction-service
+    hostname: transaction-service
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "java -version 2>/dev/null && wget -q --spider http://transaction-service:8080/actuator/health || exit 1" ]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+      start_period: 30s
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+      transaction_db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      jbank-network:
+
   victoriametrics:
     image: victoriametrics/victoria-metrics:v1.151.0.5
     ports:
@@ -298,6 +404,10 @@ services:
       account-service:
         condition: service_healthy
       admin-service:
+        condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      transaction-service:
         condition: service_healthy
     volumes:
       - victoriametrics_data:/victoria-metrics-data
@@ -372,8 +482,51 @@ services:
         condition: service_healthy
       admin-service:
         condition: service_healthy
+      notification-service:
+        condition: service_healthy
+      transaction-service:
+        condition: service_healthy
     networks:
       jbank-network:
+
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9094,CONTROLLER://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9094
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-kraft
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
 
 networks:
   jbank-network:
@@ -387,3 +540,4 @@ volumes:
   admin_data:
   victoriametrics_data:
   grafana_data:
+  kafka_data:
