@@ -123,7 +123,7 @@ services:
     ports:
       - "5438:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d admin_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U transaction -d transaction_db" ]
       interval: 2s
       timeout: 3s
       retries: 15
@@ -141,9 +141,9 @@ services:
       POSTGRES_USER: notification
       POSTGRES_PASSWORD: notification
     ports:
-      - "5438:5432"
+      - "5439:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d admin_db" ]
+      test: [ "CMD-SHELL", "pg_isready -U notification -d notification_db" ]
       interval: 2s
       timeout: 3s
       retries: 15
@@ -152,7 +152,7 @@ services:
     networks:
       jbank-network:
     volumes:
-      - notification:/var/lib/postgresql/data
+      - notification_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7.0.12-alpine
@@ -493,9 +493,9 @@ services:
     image: apache/kafka:3.7.0
     container_name: kafka
     ports:
-      - "9092:9092"
+      - "9094:9094"
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092" ]
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9094" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -504,7 +504,7 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9094,CONTROLLER://0.0.0.0:9092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9094
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9092
@@ -512,6 +512,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     volumes:
       - kafka_data:/var/lib/kafka/data
@@ -526,7 +527,7 @@ services:
         condition: service_healthy
     environment:
       KAFKA_CLUSTERS_0_NAME: local-kraft
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9094
 
 networks:
   jbank-network:
@@ -541,3 +542,5 @@ volumes:
   victoriametrics_data:
   grafana_data:
   kafka_data:
+  notification_data:
+  transaction_data:
