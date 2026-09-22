@@ -326,7 +326,7 @@ services:
     env_file:
       - ./notification-service/.env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://notification_db:5432/admin_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://notification_db:5432/notification_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       SERVER_PORT: 8080
     ports:
@@ -356,7 +356,7 @@ services:
     env_file:
       - ./transaction-service/.env
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://transaction_db:5432/admin_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://transaction_db:5432/transaction_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       SERVER_PORT: 8080
     ports:
@@ -512,7 +512,6 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     volumes:
       - kafka_data:/var/lib/kafka/data
