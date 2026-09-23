@@ -210,6 +210,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://account_db:5432/account_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       SERVER_PORT: 8080
     ports:
       - "8082:8080"
@@ -240,6 +241,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://card_db:5432/card_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       SERVER_PORT: 8080
     ports:
       - "8083:8080"
@@ -270,6 +272,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://credit_db:5432/credit_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       SERVER_PORT: 8080
     ports:
       - "8084:8080"
@@ -328,9 +331,10 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://notification_db:5432/notification_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       SERVER_PORT: 8080
     ports:
-      - "8086:8080"
+      - "8087:8080"
     container_name: notification-service
     hostname: notification-service
     restart: unless-stopped
@@ -358,6 +362,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://transaction_db:5432/transaction_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       SERVER_PORT: 8080
     ports:
       - "8087:8080"
