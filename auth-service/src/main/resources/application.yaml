@@ -15,9 +15,8 @@ spring:
 
   data:
     redis:
-      host: jbank-redis
+      host: ${SPRING_REDIS_HOST:localhost}
       port: 6379
-  #      host: ${SPRING_REDIS_HOST:localhost}
 #      port: ${SPRING_REDIS_PORT:6379}
 #      password: ${SPRING_REDIS_PASSWORD:}
 #      username: ${SPRING_REDIS_USERNAME:}
@@ -52,7 +51,7 @@ management:
       enabled: true
       zipkin:
         enabled: true
-        endpoint: http://zipkin:9411/api/v2/spans
+        endpoint: ${MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
     sampling:
       probability: 1.0
 
