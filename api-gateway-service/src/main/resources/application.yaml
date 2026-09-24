@@ -119,11 +119,19 @@ management:
         include: health, metrics, prometheus
   endpoint:
     health:
-      access: read_only
+      access: read-only
     metrics:
-      access: read_only
+      access: read-only
     prometheus:
-      access: read_only
+      access: read-only
+  tracing:
+    export:
+      enabled: true
+      zipkin:
+        enabled: true
+        endpoint: http://zipkin:9411/api/v2/spans
+    sampling:
+      probability: 1.0
 
 security:
   jwt:
@@ -153,6 +161,8 @@ springdoc:
     urls-primary-name: Auth Service
 
 logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.web: DEBUG

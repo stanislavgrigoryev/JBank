@@ -4,6 +4,8 @@ spring:
 
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    template:
+      observation-enabled: true
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -26,11 +28,23 @@ management:
         include: health, metrics, prometheus
   endpoint:
     health:
-      access: read_only
+      access: read-only
     metrics:
-      access: read_only
+      access: read-only
     prometheus:
-      access: read_only
+      access: read-only
+  tracing:
+    export:
+      enabled: true
+      zipkin:
+        enabled: true
+        endpoint: http://zipkin:9411/api/v2/spans
+    sampling:
+      probability: 1.0
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 springdoc:
   api-docs:

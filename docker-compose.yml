@@ -424,7 +424,7 @@ services:
       jbank-network:
 
   vmagent:
-    image: victoriametrics/vmagent:v1.151.0
+    image: victoriametrics/vmagent:v1.152.0
     container_name: vmagent
     volumes:
       - ./vmagent-config.yml:/etc/vmagent/config.yml
@@ -520,6 +520,8 @@ services:
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     volumes:
       - kafka_data:/var/lib/kafka/data
+    networks:
+      jbank-network:
 
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.7.2
@@ -532,6 +534,22 @@ services:
     environment:
       KAFKA_CLUSTERS_0_NAME: local-kraft
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9094
+    networks:
+      jbank-network:
+
+  zipkin:
+    image: openzipkin/zipkin:3
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    healthcheck:
+      test: ["wget -q --spider http://localhost:9411/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      jbank-network:
 
 networks:
   jbank-network:
