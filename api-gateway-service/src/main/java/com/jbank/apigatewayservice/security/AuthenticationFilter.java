@@ -38,7 +38,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
             String token = authHeader.substring(7);
             try {
-                jwtUtils.validate(token);
                 Long userId = jwtUtils.getUserId(token);
 
                 ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()

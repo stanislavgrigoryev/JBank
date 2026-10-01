@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Date;
 
 @Slf4j
@@ -21,7 +22,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claim("userId", user.getId())
-                .claim("roles", user.getRoles().stream().map(RoleType::name).toList())
+                .claim("role", Collections.singletonList(user.getRoles().stream().map(RoleType::name)))
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + jwtProperties.getTokenExpiration().toMillis()))
                 .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecretKey())

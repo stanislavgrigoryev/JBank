@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Slf4j
 @Component
 public class AdminRoleGatewayFilter extends AbstractGatewayFilterFactory<AdminRoleGatewayFilter.Config> {
@@ -44,16 +42,15 @@ public class AdminRoleGatewayFilter extends AbstractGatewayFilterFactory<AdminRo
             String token = authHeader.substring(7);
 
             try {
-                List<String> roles = jwtUtils.getUserRole(token);
-                List<String> allowedRoles = List.of("ADMIN", "OPERATOR");
+                jwtUtils.validate(token);
+                String role = jwtUtils.getUserRole(token);
 
-                boolean hasAccess = roles != null && roles.stream().anyMatch(allowedRoles::contains);
-
-                if (!hasAccess) {
+                if (!(role.equals(RoleType.ADMIN.name()) || role.equals(RoleType.OPERATOR.name()))){
                     return forbidden(exchange, "You don't have rights to this resource.");
                 }
+
                 ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-                        .header("X-User-Roles", String.join(",", roles))
+                        .header("X-User-Roles",  role)
                         .build();
 
                 return chain.filter(exchange.mutate().request(mutatedRequest).build());
