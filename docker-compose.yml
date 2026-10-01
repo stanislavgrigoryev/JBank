@@ -3,6 +3,8 @@ services:
   discovery-service:
     build:
       context: ./discovery-service
+    environment:
+      LOGSTASH_HOST: logstash
     ports:
       - "8761:8761"
     container_name: discovery-service
@@ -181,6 +183,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://auth_db:5432/auth_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      LOGSTASH_HOST: logstash
       SERVER_PORT: 8080
     depends_on:
       discovery-service:
@@ -213,6 +216,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      LOGSTASH_HOST: logstash
       SERVER_PORT: 8080
     ports:
       - "8082:8080"
@@ -245,6 +249,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      LOGSTASH_HOST: logstash
       SERVER_PORT: 8080
     ports:
       - "8083:8080"
@@ -277,6 +282,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      LOGSTASH_HOST: logstash
       SERVER_PORT: 8080
     ports:
       - "8084:8080"
@@ -308,6 +314,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://admin_db:5432/admin_db
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      LOGSTASH_HOST: logstash
       SERVER_PORT: 8080
     ports:
       - "8085:8080"
@@ -338,6 +345,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      LOGSTASH_HOST: logstash
       SERVER_PORT: 8080
     ports:
       - "8088:8080"
@@ -370,6 +378,7 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9094
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      LOGSTASH_HOST: logstash
       SERVER_PORT: 8080
     ports:
       - "8087:8080"
@@ -481,6 +490,7 @@ services:
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
       MANAGEMENT_TRACING_EXPORT_ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      LOGSTASH_HOST: logstash
       SERVER_PORT: 8080
     depends_on:
       discovery-service:
@@ -579,11 +589,11 @@ services:
     image: docker.elastic.co/logstash/logstash:8.7.0
     container_name: logstash
     volumes:
-      - ./config/logstash/pipelines:/usr/share/logstash/config/pipelines:ro
+      - ./config/logstash/pipelines:/usr/share/logstash/pipeline:ro
     environment:
       LS_JAVA_OPTS: "-Xmx512m -Xms512m"
     ports:
-      - "5054:5054"
+      - "5044:5044"
     depends_on:
       elasticsearch:
         condition: service_healthy
