@@ -143,7 +143,7 @@ public class UserService {
                 .map(RefreshToken::getUserId)
                 .map(userId -> {
                     User tokenOwner = userRepository.findById(userId).orElseThrow(() -> new RefreshTokenException("Exception trying to get token for userId " + userId));
-                    String token = jwtUtils.generateTokenFromUsername(tokenOwner.getUsername());
+                    String token = jwtUtils.generateJwtToken(tokenOwner);
 
                     return new RefreshTokenResponse(token, refreshTokenService.createRefreshToken(userId).getToken());
                 }).orElseThrow(() -> new RefreshTokenException(refreshTokenRequest, "refresh token not found"));
