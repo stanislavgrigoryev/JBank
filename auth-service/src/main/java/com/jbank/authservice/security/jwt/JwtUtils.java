@@ -1,5 +1,6 @@
 package com.jbank.authservice.security.jwt;
 
+import com.jbank.authservice.entity.RoleType;
 import com.jbank.authservice.entity.User;
 import com.jbank.authservice.properties.SecurityJwtProperties;
 import io.jsonwebtoken.*;
@@ -20,6 +21,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claim("userId", user.getId())
+                .claim("roles", user.getRoles().stream().map(RoleType::name).toList())
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + jwtProperties.getTokenExpiration().toMillis()))
                 .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecretKey())

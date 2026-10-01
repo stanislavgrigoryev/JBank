@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
+import java.util.List;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -19,31 +22,26 @@ public class JwtUtils {
 
     private final JwtProperties jwtProperties;
 
-    public boolean validate(String authToken) {
+    public List<String> getUserRole(String token) {
         try {
-            Jwts.parser().setSigningKey(jwtProperties.getSecretKey()).build().parse(authToken);
-            return true;
-        } catch (SignatureException e){
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtProperties.getSecretKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return Collections.singletonList(claims.get("roles", String.class));
+        } catch (SignatureException e) {
             log.error("Invalid JWT signature" + e.getMessage());
-        } catch (MalformedJwtException e){
+        } catch (MalformedJwtException e) {
             log.error("Invalid JWT token" + e.getMessage());
-        } catch (ExpiredJwtException e){
+        } catch (ExpiredJwtException e) {
             log.error("Expired JWT token" + e.getMessage());
-        } catch (UnsupportedJwtException e){
+        } catch (UnsupportedJwtException e) {
             log.error("Unsupported JWT token" + e.getMessage());
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             log.error("JWT claims string is empty" + e.getMessage());
         }
-        return false;
-    }
-
-    public String getUserRole(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(jwtProperties.getSecretKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.get("roles", String.class);
+        return Collections.emptyList();
     }
 
     public Long getUserId(String token) {

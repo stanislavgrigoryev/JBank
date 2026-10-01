@@ -1,6 +1,8 @@
 package com.jbank.apigatewayservice.security;
 
 import com.jbank.apigatewayservice.config.RouteValidator;
+import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -11,6 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
+@Slf4j
 @Component
 public class AdminRoleGatewayFilter extends AbstractGatewayFilterFactory<AdminRoleGatewayFilter.Config> {
 
@@ -37,16 +42,18 @@ public class AdminRoleGatewayFilter extends AbstractGatewayFilterFactory<AdminRo
             }
 
             String token = authHeader.substring(7);
-            String role = jwtUtils.getUserRole(token);
-
-            if (!(role.equals(RoleType.ADMIN.name()) || role.equals(RoleType.OPERATOR.name()))) {
-                return forbidden(exchange, "You don't have rights to this resource");
-            }
 
             try {
-                jwtUtils.validate(token);
+                List<String> roles = jwtUtils.getUserRole(token);
+                List<String> allowedRoles = List.of("ADMIN", "OPERATOR");
+
+                boolean hasAccess = roles != null && roles.stream().anyMatch(allowedRoles::contains);
+
+                if (!hasAccess) {
+                    return forbidden(exchange, "You don't have rights to this resource.");
+                }
                 ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-                        .header("X-User-Roles", role)
+                        .header("X-User-Roles", String.join(",", roles))
                         .build();
 
                 return chain.filter(exchange.mutate().request(mutatedRequest).build());
@@ -61,6 +68,7 @@ public class AdminRoleGatewayFilter extends AbstractGatewayFilterFactory<AdminRo
         exchange.getResponse().getHeaders().add("X-Error-Message", message);
         return exchange.getResponse().setComplete();
     }
+
     private Mono<Void> forbidden(ServerWebExchange exchange, String message) {
         exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
         exchange.getResponse().getHeaders().add("X-Error-Message", message);
