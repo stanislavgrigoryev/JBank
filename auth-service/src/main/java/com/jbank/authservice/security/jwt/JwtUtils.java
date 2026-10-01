@@ -22,7 +22,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claim("userId", user.getId())
-                .claim("role", Collections.singletonList(user.getRoles().stream().map(RoleType::name)))
+                .claim("roles", user.getRoles().stream().map(RoleType::name).toList())
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + jwtProperties.getTokenExpiration().toMillis()))
                 .signWith(SignatureAlgorithm.HS512, jwtProperties.getSecretKey())

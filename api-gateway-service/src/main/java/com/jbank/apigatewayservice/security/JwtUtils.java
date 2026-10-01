@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -37,13 +39,13 @@ public class JwtUtils {
         return false;
     }
 
-    public String getUserRole(String token) {
+    public List<?> getUserRole(String token) {
             Claims claims = Jwts.parser()
                     .setSigningKey(jwtProperties.getSecretKey())
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            return claims.get("role", String.class);
+            return claims.get("roles", List.class);
     }
 
     public Long getUserId(String token) {
