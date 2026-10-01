@@ -570,8 +570,6 @@ services:
        discovery.type: single-node
        xpack.security.enabled: false
        ES_JAVA_OPTS: "-Xmx512m -Xms512m"
-       ELASTIC_USERNAME: "elastic"
-       ELASTIC_PASSWORD: "MyPw123"
     ports:
       - "9200:9200"
     networks:
@@ -581,11 +579,11 @@ services:
     image: docker.elastic.co/logstash/logstash:8.7.0
     container_name: logstash
     volumes:
-      - ./configs/logstash/pipelines:/usr/share/logstash/config/pipelines:ro
+      - ./config/logstash/pipelines:/usr/share/logstash/config/pipelines:ro
     environment:
       LS_JAVA_OPTS: "-Xmx512m -Xms512m"
     ports:
-      - "5000:5000"
+      - "5054:5054"
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -597,8 +595,6 @@ services:
     container_name: kibana
     environment:
        ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
-       ELASTIC_USERNAME: "elastic"
-       ELASTIC_PASSWORD: "MyPw123"
     depends_on:
       elasticsearch:
         condition: service_healthy
