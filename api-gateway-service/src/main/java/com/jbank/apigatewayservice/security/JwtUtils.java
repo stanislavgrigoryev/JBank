@@ -37,11 +37,13 @@ public class JwtUtils {
         return false;
     }
 
-    public String getUsername(String token) {
-        return Jwts.parser()
+    public String getUserRole(String token) {
+        Claims claims = Jwts.parser()
                 .setSigningKey(jwtProperties.getSecretKey())
                 .build()
-                .parseClaimsJws(token).getBody().getSubject();
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("roles", String.class);
     }
 
     public Long getUserId(String token) {
