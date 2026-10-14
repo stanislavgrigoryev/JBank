@@ -30,6 +30,20 @@ spring:
     hibernate:
       ddl-auto: create
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      sbp:
+        sliding-window-size: 20
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+      antifraud:
+        sliding-window-size: 20
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+
 management:
   endpoints:
     web:
